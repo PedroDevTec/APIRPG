@@ -50,7 +50,7 @@ namespace WebApplication2.Controllers
                             Sorte = rng.Next(0, 20), 
                             Crítico = crit, 
                             DanoSofrido = dnf, 
-                            TXT = "SÓ 1 PIMBADINHA"}
+                            TXT = "VOCÊ PEGOU O PASSE LIVRE PRO ONLYFANS DO BUENINHO"}
                     };
 
                     return Ok(txt);  
