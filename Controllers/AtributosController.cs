@@ -88,8 +88,8 @@ namespace WebApplication2.Controllers
             }
         }
 
-        [HttpGet("/api/atributos/{id}")]
-        public IActionResult GetAtributosPorId(string id)
+        [HttpGet("/api/atributos")]
+        public IActionResult GetAtributosPorId([FromQuery] string id)
         {
             try
             {
