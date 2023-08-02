@@ -100,7 +100,15 @@ namespace WebApplication2.Controllers
 
                 var filtro = Builders<AtributosData>.Filter.Eq("_id", ObjectId.Parse(id));
 
-                var atributos = collection.Find(filtro).FirstOrDefault();
+                // Defina a projeção para retornar apenas os campos que você deseja
+                var projection = Builders<AtributosData>.Projection
+                    .Include(atributo => atributo.Força)
+                    .Include(atributo => atributo.Vitalidade)
+                    .Include(atributo => atributo.Nome);
+
+                var atributos = collection.Find(filtro)
+                                         .Project<AtributosData>(projection)
+                                         .FirstOrDefault();
 
                 if (atributos == null)
                 {
