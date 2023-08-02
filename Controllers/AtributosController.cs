@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using WebApplication2.Classes;
 
 namespace WebApplication2.Controllers
@@ -10,12 +13,14 @@ namespace WebApplication2.Controllers
     [Route("[controller]")]
     public class AtributosController : ControllerBase
     {
-
+        private readonly IConfiguration _configuration;
         public readonly Atributos att;
 
-        public AtributosController(Atributos atri)
+        public AtributosController(Atributos atri, IConfiguration configuration)
         {
             att = atri;
+            _configuration = configuration;
+
         }
         [HttpGet]
         public IActionResult Get()
@@ -50,7 +55,7 @@ namespace WebApplication2.Controllers
                             Sorte = rng.Next(0, 20), 
                             Crítico = crit, 
                             DanoSofrido = dnf, 
-                            TXT = "SÓ 1 PIMBADINHA"}
+                            TXT = "VOCÊ PEGOU O PASSE LIVRE PRO ONLYFANS DO BUENINHO"}
                     };
 
                     return Ok(txt);  
@@ -60,5 +65,113 @@ namespace WebApplication2.Controllers
             return Ok(calculo);
         }
 
+        [HttpPost("Armazenar")]
+        public IActionResult ArmazenarAtributos([FromBody] AtributosData atributos)
+        {
+            try
+            {
+                var connectionString = _configuration.GetConnectionString("MongoDBConnection");
+                var client = new MongoClient(connectionString);
+                var database = client.GetDatabase("RPGAPI");
+                var collection = database.GetCollection<AtributosData>("Atributos");
+
+                // Certifique-se de que o ID está nulo antes de inserir no banco de dados
+                atributos.Id = null;
+
+                collection.InsertOne(atributos);
+
+                return Ok("Dados armazenados com sucesso no MongoDB!");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Erro ao armazenar os dados no MongoDB: {ex.Message}");
+            }
+        }
+
+        [HttpGet("/api/atributos/{id}")]
+        public IActionResult GetAtributosPorId(string id)
+        {
+            try
+            {
+                var connectionString = _configuration.GetConnectionString("MongoDBConnection");
+                var client = new MongoClient(connectionString);
+                var database = client.GetDatabase("RPGAPI");
+                var collection = database.GetCollection<AtributosData>("Atributos");
+
+                var filtro = Builders<AtributosData>.Filter.Eq("_id", ObjectId.Parse(id));
+
+                var atributos = collection.Find(filtro).FirstOrDefault();
+
+                if (atributos == null)
+                {
+                    return NotFound("Atributos não encontrados com o ID fornecido.");
+                }
+
+                return Ok(atributos);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Erro ao buscar os dados no MongoDB: {ex.Message}");
+            }
+        }
+
+        [HttpGet("Todos")]
+        public IActionResult GetAtributos()
+        {
+            try
+            {
+                var connectionString = _configuration.GetConnectionString("MongoDBConnection");
+                var client = new MongoClient(connectionString);
+                var database = client.GetDatabase("RPGAPI");
+                var collection = database.GetCollection<AtributosData>("Atributos");
+
+                var atributos = collection.Find(_ => true).ToList();
+
+                if (atributos.Count == 0)
+                {
+                    return NotFound("Nenhum atributo encontrado.");
+                }
+
+                return Ok(atributos);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Erro ao buscar os dados no MongoDB: {ex.Message}");
+            }
+        }
+        [HttpPut("/api/atributos/{id}")]
+        public IActionResult UpdateAtributos(string id, [FromBody] AtributosData atributosAtualizados)
+        {
+            try
+            {
+                var connectionString = _configuration.GetConnectionString("MongoDBConnection");
+                var client = new MongoClient(connectionString);
+                var database = client.GetDatabase("RPGAPI");
+                var collection = database.GetCollection<AtributosData>("Atributos");
+
+                var filtro = Builders<AtributosData>.Filter.Eq("_id", ObjectId.Parse(id));
+
+                var atributosAntigos = collection.Find(filtro).FirstOrDefault();
+
+                if (atributosAntigos == null)
+                {
+                    return NotFound("Atributos não encontrados com o ID fornecido.");
+                }
+
+                atributosAntigos.Força = atributosAtualizados.Força;
+                atributosAntigos.Inteligência = atributosAtualizados.Inteligência;
+                atributosAntigos.Vitalidade = atributosAtualizados.Vitalidade;
+                atributosAntigos.Sorte = atributosAtualizados.Sorte;
+                atributosAntigos.Nome = atributosAtualizados.Nome;
+
+                collection.ReplaceOne(filtro, atributosAntigos);
+
+                return Ok("Atributos atualizados com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Erro ao atualizar os dados no MongoDB: {ex.Message}");
+            }
+        }
     }
 }
