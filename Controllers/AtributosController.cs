@@ -103,8 +103,7 @@ namespace WebApplication2.Controllers
                 // Defina a projeção para retornar apenas os campos que você deseja
                 var projection = Builders<AtributosData>.Projection
                     .Include(atributo => atributo.Força)
-                    .Include(atributo => atributo.Vitalidade)
-                    .Include(atributo => atributo.Nome);
+                    .Include(atributo => atributo.Vitalidade);
 
                 var atributos = collection.Find(filtro)
                                          .Project<AtributosData>(projection)
@@ -170,7 +169,6 @@ namespace WebApplication2.Controllers
                 atributosAntigos.Inteligência = atributosAtualizados.Inteligência;
                 atributosAntigos.Vitalidade = atributosAtualizados.Vitalidade;
                 atributosAntigos.Sorte = atributosAtualizados.Sorte;
-                atributosAntigos.Nome = atributosAtualizados.Nome;
 
                 collection.ReplaceOne(filtro, atributosAntigos);
 

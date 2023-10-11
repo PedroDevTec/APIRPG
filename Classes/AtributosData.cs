@@ -13,6 +13,5 @@ namespace WebApplication2.Classes
         public int Inteligência { get; set; }
         public int Vitalidade { get; set; }
         public int Sorte { get; set; }
-        public string Nome { get; set; }
     }
 }
