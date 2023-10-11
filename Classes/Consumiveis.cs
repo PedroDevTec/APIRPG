@@ -3,16 +3,15 @@ using MongoDB.Bson;
 
 namespace WebApplication2.Classes
 {
-    public class AtributosData
+    public class Consumiveis
     {
         [BsonId]
         [BsonIgnoreIfDefault]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
-        public int Força { get; set; }
-        public int Inteligência { get; set; }
-        public int Vitalidade { get; set; }
-        public int Sorte { get; set; }
+        public string _id { get; set; }
         public string Nome { get; set; }
+        public string Descricao { get; set; }
+        public string status { get; set; }
+        // Outros campos relacionados a Consumíveis
     }
 }
