@@ -9,18 +9,18 @@ namespace WebApplication2.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ArmaduraController : ControllerBase
+    public class ArmaController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly IMongoCollection<Armadura> _armaduraCollection;
+        private readonly IMongoCollection<Arma> _armaCollection;
 
-        public ArmaduraController(IConfiguration configuration)
+        public ArmaController(IConfiguration configuration)
         {
             _configuration = configuration;
             var connectionString = _configuration.GetConnectionString("MongoDBConnection");
             var client = new MongoClient(connectionString);
             var database = client.GetDatabase("RPGAPI");
-            _armaduraCollection = database.GetCollection<Armadura>("armadura");
+            _armaCollection = database.GetCollection<Arma>("arma");
         }
 
         [HttpGet]
@@ -28,8 +28,8 @@ namespace WebApplication2.Controllers
         {
             try
             {
-                var armaduras = _armaduraCollection.Find(_ => true).ToList();
-                return Ok(armaduras);
+                var armas = _armaCollection.Find(_ => true).ToList();
+                return Ok(armas);
             }
             catch (Exception ex)
             {
@@ -42,14 +42,14 @@ namespace WebApplication2.Controllers
         {
             try
             {
-                var armadura = _armaduraCollection.Find(a => a._id == id).FirstOrDefault();
+                var arma = _armaCollection.Find(a => a._id == id).FirstOrDefault();
 
-                if (armadura == null)
+                if (arma == null)
                 {
                     return NotFound();
                 }
 
-                return Ok(armadura);
+                return Ok(arma);
             }
             catch (Exception ex)
             {
@@ -58,13 +58,13 @@ namespace WebApplication2.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Armadura armadura)
+        public IActionResult Create([FromBody] Arma arma)
         {
             try
             {
-                armadura._id = null;
-                _armaduraCollection.InsertOne(armadura);
-                return Ok("Dados de armadura armazenados com sucesso no MongoDB!");
+                arma._id = null;
+                _armaCollection.InsertOne(arma);
+                return Ok("Dados da arma armazenados com sucesso no MongoDB!");
             }
             catch (Exception ex)
             {
@@ -73,19 +73,19 @@ namespace WebApplication2.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(string id, [FromBody] Armadura updatedArmadura)
+        public IActionResult Put(string id, [FromBody] Arma updatedArma)
         {
             try
             {
-                var existingArmadura = _armaduraCollection.Find(a => a._id == id).FirstOrDefault();
+                var existingArma = _armaCollection.Find(a => a._id == id).FirstOrDefault();
 
-                if (existingArmadura == null)
+                if (existingArma == null)
                 {
                     return NotFound();
                 }
 
-                updatedArmadura._id = existingArmadura._id;
-                _armaduraCollection.ReplaceOne(a => a._id == id, updatedArmadura);
+                updatedArma._id = existingArma._id;
+                _armaCollection.ReplaceOne(a => a._id == id, updatedArma);
 
                 return NoContent();
             }
